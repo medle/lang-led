@@ -33,9 +33,10 @@ namespace LangLed
       }
 
       _form1 = new LangLedForm();
-      Action action = delegate { _form1?.RefreshIndicator(); };
+      Action longAction = delegate { _form1?.RefreshIndicatorOnSignal(); };
+      Action shortAction = delegate { _form1?.BeginInvoke(longAction); };
 
-      LangLedHook.SetShiftUpHook(action);
+      LangLedHook.SetShiftUpHook(shortAction);
       Application.Run(_form1);
       LangLedHook.UnhookShiftUp();
     }

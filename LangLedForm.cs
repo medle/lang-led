@@ -12,7 +12,7 @@ namespace LangLed
   public partial class LangLedForm : Form
   {
     RedLightController redLight = null; 
-    int n = 0;
+    int totalUpdateCounter = 0;
 
     public LangLedForm()
     {
@@ -36,7 +36,7 @@ namespace LangLed
     private bool lastStateWasRu = false;
     private EdgeWindow edgeWindow = null;
 
-    private void UpdateIndicatorMessage()
+    private void UpdateIndicatorVisuals()
     {
       //var timer = new MilliTimer();
       bool ru = Win32.IsLanguageRussian();
@@ -48,10 +48,10 @@ namespace LangLed
       }
       //System.Diagnostics.Trace.WriteLine("win=" + timer);
 
-      n += 1;
+      totalUpdateCounter += 1;
       string text = (ru ? "RU" : "EN");
 
-      this.label1.Text = n.ToString() + ": " + text;
+      this.label1.Text = totalUpdateCounter.ToString() + ": " + text;
       this.label2.Text = this.redLight?.GetState();
 
       //var color = ru ? Color.DarkRed : Color.DarkBlue;
@@ -78,35 +78,40 @@ namespace LangLed
       flashWindow.Show();
     }
 
-    public void RefreshIndicator()
+    public void RefreshIndicatorOnSignal()
     {
-      Delegate d = (MethodInvoker)delegate { BeginSoftProbing(); };
-      BeginInvoke(d);
+      BeginSoftProbing();
     }
 
     private Timer probeTimer;
     private FlashWindow flashWindow;
+    private int probeCounter = 0;
 
     private void BeginSoftProbing()
     {
       if (this.probeTimer == null) {
         this.probeTimer = new Timer();
-        this.probeTimer.Interval = 10;
-        this.probeTimer.Tick += delegate { PerformOneProbing(); };
+        this.probeTimer.Interval = 20;
+        this.probeTimer.Tick += delegate { PerformProbing(); };
       }
 
-      if (!this.probeTimer.Enabled) this.probeTimer.Start();
+      // reset probe counter so if sequence is already running it gets restarted
+      this.probeCounter = 0;
+
+      if (!this.probeTimer.Enabled) {
+        this.probeTimer.Start();
+      }
     }
 
-    private void PerformOneProbing()
+    private void PerformProbing()
     {
-      UpdateIndicatorMessage();
-      this.probeTimer.Stop();
+      UpdateIndicatorVisuals();
+      if(++this.probeCounter >= 5) this.probeTimer.Stop();
     }
 
     private void LangLedForm_Loaded(object sender, EventArgs e)
     {
-      RefreshIndicator();
+      RefreshIndicatorOnSignal();
     }
 
     private void LangLedForm_Resize(object sender, EventArgs e)
