@@ -9,8 +9,9 @@ namespace LangLed
 {
   static class LangLedMain
   {
-    static LangLedForm _form1;
+    private static LangLedForm _mainForm;
     public static bool EnableArduino = false;
+    public static int BrightnessPercentage = 5;
 
     /// <summary>
     /// Главная точка входа для приложения.
@@ -23,22 +24,44 @@ namespace LangLed
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
 
-      if (args != null && args.Length > 0) {
-        string arduinoOption = "--enable-arduino";
-        if (args[0] == arduinoOption) { EnableArduino = true; }
-        else {
-          MessageBox.Show($"Unrecognized command line option: {args[0]}. Options are: {arduinoOption}.");
-          return;
-        }
-      }
+      if (!ParseCommandLineArguments(args)) return;
 
-      _form1 = new LangLedForm();
-      Action longAction = delegate { _form1?.RefreshIndicatorOnSignal(); };
-      Action shortAction = delegate { _form1?.BeginInvoke(longAction); };
+      _mainForm = new LangLedForm();
+      Action longAction = delegate { _mainForm?.RefreshIndicatorOnSignal(); };
+      Action shortAction = delegate { _mainForm?.BeginInvoke(longAction); };
 
       LangLedHook.SetShiftUpHook(shortAction);
-      Application.Run(_form1);
+      Application.Run(_mainForm);
       LangLedHook.UnhookShiftUp();
+    }
+
+    private static bool ParseCommandLineArguments(string[] args)
+    {
+      if (args == null) return true;
+
+      string arduinoOption = "--enable-arduino";
+      string brightnessOption = "--brightness=";
+
+      foreach (var arg in args) {
+        if (arg == arduinoOption) {
+          EnableArduino = true;
+          continue;
+        }
+
+        if (arg.StartsWith(brightnessOption)) {
+          string value = arg.Substring(brightnessOption.Length);
+          if (Int32.TryParse(value, out BrightnessPercentage) &&
+             BrightnessPercentage > 0 && BrightnessPercentage <= 100) continue;
+          MessageBox.Show($"Brightness value must be in range (0, 100].");
+          return false;
+        }
+
+        MessageBox.Show($"Unrecognized command line option: {arg}.\n" +
+                        $"Options are: {arduinoOption}, {brightnessOption}NN.");
+        return false;
+      }
+
+      return true;
     }
   }
 }

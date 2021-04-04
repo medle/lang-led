@@ -45,8 +45,8 @@ namespace LangLed
       }
 
       if (this.session != null) {
-        int brightness = 1;
-        session.SetDigitalPin(PWM_PIN, on ? brightness : 0);
+        int pwmWidthByte = ((LangLedMain.BrightnessPercentage * 255) / 100);
+        session.SetDigitalPin(PWM_PIN, on ? pwmWidthByte : 0);
         session.SetDigitalPin(LED_PIN, on);
       }
     }
