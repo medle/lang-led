@@ -32,6 +32,7 @@
       this.label1 = new System.Windows.Forms.Label();
       this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
       this.label2 = new System.Windows.Forms.Label();
+      this.logComboBox = new System.Windows.Forms.ComboBox();
       this.SuspendLayout();
       // 
       // label1
@@ -62,11 +63,20 @@
       this.label2.TabIndex = 2;
       this.label2.Text = "...";
       // 
+      // logComboBox
+      // 
+      this.logComboBox.FormattingEnabled = true;
+      this.logComboBox.Location = new System.Drawing.Point(34, 169);
+      this.logComboBox.Name = "logComboBox";
+      this.logComboBox.Size = new System.Drawing.Size(826, 39);
+      this.logComboBox.TabIndex = 3;
+      // 
       // LangLedForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(882, 185);
+      this.ClientSize = new System.Drawing.Size(882, 236);
+      this.Controls.Add(this.logComboBox);
       this.Controls.Add(this.label2);
       this.Controls.Add(this.label1);
       this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
@@ -81,6 +91,7 @@
     private System.Windows.Forms.Label label1;
     private System.Windows.Forms.NotifyIcon notifyIcon1;
     private System.Windows.Forms.Label label2;
+    private System.Windows.Forms.ComboBox logComboBox;
   }
 }
 

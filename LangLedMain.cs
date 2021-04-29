@@ -27,12 +27,19 @@ namespace LangLed
       if (!ParseCommandLineArguments(args)) return;
 
       _mainForm = new LangLedForm();
-      Action longAction = delegate { _mainForm?.RefreshIndicatorOnSignal(); };
-      Action shortAction = delegate { _mainForm?.BeginInvoke(longAction); };
 
-      LangLedHook.SetShiftUpHook(shortAction);
+      RestartHook();
       Application.Run(_mainForm);
       LangLedHook.UnhookShiftUp();
+    }
+
+    public static void RestartHook()
+    {
+      LangLedHook.UnhookShiftUp();
+
+      Action longAction = delegate { _mainForm?.RefreshIndicatorOnSignal(); };
+      Action shortAction = delegate { _mainForm?.BeginInvoke(longAction); };
+      LangLedHook.SetShiftUpHook(shortAction);
     }
 
     private static bool ParseCommandLineArguments(string[] args)

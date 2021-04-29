@@ -14,6 +14,8 @@ namespace LangLed
     RedLightController redLight = null; 
     int totalUpdateCounter = 0;
 
+    private Timer refreshTimer;
+
     public LangLedForm()
     {
       InitializeComponent();
@@ -31,22 +33,38 @@ namespace LangLed
       this.Resize += LangLedForm_Resize;
       this.Closing += LangLedForm_Closing;
       this.Load += LangLedForm_Loaded;
+
+      this.refreshTimer = new Timer();
+      this.refreshTimer.Interval = 1000 * 60 * 3; // every three minutes
+      this.refreshTimer.Tick += delegate { PerformRefresh(); };
+      this.refreshTimer.Start();
+    }
+
+    private void PerformRefresh()
+    {
+      LangLedMain.RestartHook();
+      Win32.ResetCache();
     }
 
     private bool lastStateWasRu = false;
     private EdgeWindow edgeWindow = null;
+    private EdgePopup edgePopup = null;
+
+    private void AddLog(string what)
+    {
+      this.logComboBox.Items.Add(what);
+    }
 
     private void UpdateIndicatorVisuals()
     {
-      //var timer = new MilliTimer();
+      var timer = new MilliTimer();
       bool ru = Win32.IsLanguageRussian();
-      //System.Diagnostics.Trace.WriteLine("isRu=" + timer);
+      AddLog($"{totalUpdateCounter}/{probeCounter}: isRu={ru}, {timer}ms");
 
       if (lastStateWasRu != ru) {
-        ShowEdgeWindow(ru);
+        ShowEdgePopup(ru);
         lastStateWasRu = ru;
       }
-      //System.Diagnostics.Trace.WriteLine("win=" + timer);
 
       totalUpdateCounter += 1;
       string text = (ru ? "RU" : "EN");
@@ -61,11 +79,27 @@ namespace LangLed
       Invoke(a);
     }
 
+    private void ShowEdgePopup(bool on)
+    {
+      if (edgePopup == null) {
+        edgePopup = new EdgePopup(this);
+        this.Controls.Add(edgePopup);
+      }
+      if (on) {
+        edgePopup.Show();
+      }
+      else {
+        edgePopup.Hide();
+      }
+    }
+
     private void ShowEdgeWindow(bool on)
     {
-      if (edgeWindow == null) edgeWindow = new EdgeWindow();
+      if (edgeWindow == null) {
+        edgeWindow = new EdgeWindow();
+      }
       if (on) {
-        edgeWindow.Show();
+        edgeWindow.Show(this);
       } else {
         edgeWindow.Hide();
       }
@@ -106,7 +140,7 @@ namespace LangLed
     private void PerformProbing()
     {
       UpdateIndicatorVisuals();
-      if(++this.probeCounter >= 5) this.probeTimer.Stop();
+      if(++this.probeCounter >= 3) this.probeTimer.Stop();
     }
 
     private void LangLedForm_Loaded(object sender, EventArgs e)

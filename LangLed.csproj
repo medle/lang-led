@@ -77,6 +77,9 @@
     <Reference Include="UIAutomationTypes" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EdgePopup.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="EdgeWindow.cs">
       <SubType>Form</SubType>
     </Compile>

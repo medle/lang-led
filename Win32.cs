@@ -39,6 +39,13 @@ namespace LangLed
     private static AutomationElement cachedElement = null;
     private static DateTime cachedElementUseTime = DateTime.MinValue;
 
+    public static void ResetCache()
+    {
+      if (cachedElement != null) {
+        cachedElement = null;
+      }
+    }
+
     public static bool IsLanguageRussian()
     {
       var now = DateTime.Now;
